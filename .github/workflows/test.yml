@@ -13,8 +13,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python: ["3.9", "3.13"]
+        include:
+          - { os: macos-latest, python: "3.9" }  # what macOS's command line tools ship
+          - { os: macos-latest, python: "3.13" }
+          - { os: ubuntu-latest, python: "3.13" }  # ubuntu-latest no longer has 3.9
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
