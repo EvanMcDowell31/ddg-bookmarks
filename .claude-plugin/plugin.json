@@ -1,0 +1,14 @@
+{
+  "name": "ddg-bookmarks",
+  "displayName": "DuckDuckGo bookmarks",
+  "version": "0.1.0",
+  "description": "Read, add and remove DuckDuckGo for Mac bookmarks while the browser runs, with a backup before every change. A command to bookmark links, and a workflow that bookmarks your projects.",
+  "author": {
+    "name": "EvanMcDowell31",
+    "url": "https://github.com/EvanMcDowell31"
+  },
+  "homepage": "https://evanmcdowell31.github.io/ddg-bookmarks/",
+  "repository": "https://github.com/EvanMcDowell31/ddg-bookmarks",
+  "license": "Apache-2.0",
+  "keywords": ["duckduckgo", "bookmarks", "browser", "macos"]
+}

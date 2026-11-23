@@ -1,0 +1,6 @@
+#!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
+# Runs the bookmarks skill's script. While the plugin is enabled, Claude Code
+# puts this folder on the Bash tool's PATH, so `ddg-bookmarks tree` works.
+here=$(cd "$(dirname "$0")" && pwd -P) || exit 1
+exec python3 -I "$here/../skills/bookmarks/scripts/ddg_bookmarks.py" "$@"

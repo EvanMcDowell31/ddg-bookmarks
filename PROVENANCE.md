@@ -1,0 +1,16 @@
+# Provenance
+
+Every source that shaped this project, with when it was read and what it was used for. It was built from public documentation and public open-source code. No code was copied from any of them; the Apache License text is the one exception, and it's reproduced whole as LICENSE.
+
+| Date (UTC) | Source | Used for |
+|---|---|---|
+| 2026-11-23 | [macOS/DuckDuckGo/Bookmarks/Services/LocalBookmarkStore.swift](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/Bookmarks/Services/LocalBookmarkStore.swift), DuckDuckGo's apple-browsers repository (Apache-2.0) | How the app reads the store: a fresh context each time with `stalenessInterval` 0, so rows written outside the app are read when it next loads bookmarks, and nothing it holds in memory overwrites them |
+| 2026-11-23 | [macOS/DuckDuckGo/Bookmarks/Model/BookmarkManager.swift](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/Bookmarks/Model/BookmarkManager.swift) and [macOS/DuckDuckGo/BookmarksBar/View/BookmarksBarViewModel.swift](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/BookmarksBar/View/BookmarksBarViewModel.swift), same repository | When bookmarks load again; that the bar is `bookmarks_root`'s children, in manual order; that untitled rows are dropped at launch and links that run code are refused |
+| 2026-11-23 | [SharedPackages/BrowserServicesKit/Sources/Bookmarks/BookmarkEntity.swift](https://github.com/duckduckgo/apple-browsers/blob/main/SharedPackages/BrowserServicesKit/Sources/Bookmarks/BookmarkEntity.swift), same repository | What a new row holds (UUID, `modifiedAt`, stub and pending-deletion flags) and what a save does to its parent folder, which the script repeats |
+| 2026-11-23 | [macOS/Configuration/DeveloperID.xcconfig](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/Configuration/DeveloperID.xcconfig) and [macOS/Configuration/AppStore.xcconfig](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/Configuration/AppStore.xcconfig), same repository | The two builds' bundle identifiers, `com.duckduckgo.macos.browser` and `com.duckduckgo.mobile.ios`, which name the containers the script looks in |
+| 2026-11-23 | [Plugin manifest reference](https://code.claude.com/docs/en/plugins-reference), Claude Code docs | The plugin's layout and `plugin.json`; `bin/` on the Bash tool's PATH; `${CLAUDE_PLUGIN_ROOT}` in skill text |
+| 2026-11-23 | [Create a marketplace](https://code.claude.com/docs/en/plugin-marketplaces), Claude Code docs | `marketplace.json`, with the plugin at the repository's root, and the install commands |
+| 2026-11-23 | [Dynamic workflows](https://code.claude.com/docs/en/workflows), Claude Code docs | The workflow script's form, and shipping it in the plugin's `workflows/` folder |
+| 2026-11-23 | [docs/proposals/plugin-panes.md](https://github.com/irie-people/irie/blob/main/docs/proposals/plugin-panes.md), Irie (Apache-2.0) | The manifest of an Irie plugin of your own: `[skills.<id>]` and `[words.<id>]` |
+| 2026-11-23 | [Uniform Resource Identifiers](https://www.sqlite.org/uri.html), SQLite docs | Opening the store with `mode=rw`, so a mistyped path never creates a database |
+| 2026-11-23 | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) | LICENSE, reproduced whole |

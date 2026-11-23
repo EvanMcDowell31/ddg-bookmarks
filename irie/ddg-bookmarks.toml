@@ -1,0 +1,20 @@
+# DuckDuckGo bookmarks as an Irie plugin of your own.
+#
+# 1. Clone this repository, and set path below to its skills/bookmarks folder.
+# 2. Copy this file to ~/.config/irie/plugins/ddg-bookmarks.toml.
+# 3. Turn the plugin on in Irie's Settings › Plugins. A plugin with a skill
+#    stays off until you do, since every agent's session gets its skill.
+#
+# Agents' sessions then have /irie:ddg-bookmarks, and :bookmark in a task bar
+# starts a session on it: ":bookmark https://example.com into Reading".
+
+title = "DuckDuckGo bookmarks"
+summary = "Agents read and add to DuckDuckGo for Mac's bookmarks while it runs."
+
+[skills.ddg-bookmarks]
+title = "DuckDuckGo bookmarks"
+path = "~/src/ddg-bookmarks/skills/bookmarks"
+
+[words.bookmark]
+title = "Bookmarks"
+skill = "ddg-bookmarks"

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ddg-bookmarks: DuckDuckGo for Mac bookmarks from Claude Code</title>
+<meta name="description" content="A Claude Code plugin that reads, adds and removes bookmarks in DuckDuckGo for Mac while it runs, with a backup before every change.">
+<meta property="og:title" content="ddg-bookmarks">
+<meta property="og:description" content="DuckDuckGo for Mac bookmarks from Claude Code: add links in one step, keep a folder of your projects up to date, with a backup before every change.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://evanmcdowell31.github.io/ddg-bookmarks/">
+<meta property="og:image" content="https://evanmcdowell31.github.io/ddg-bookmarks/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://evanmcdowell31.github.io/ddg-bookmarks/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6f62'/%3E%3Cpath d='M10 7h12v18l-6-4.5L10 25z' fill='%23f5f2ea'/%3E%3C/svg%3E">
+<style>
+:root {
+  --paper: #f5f2ea;
+  --card: #fffdf8;
+  --ink: #1f2a2e;
+  --muted: #5b6669;
+  --line: #ddd6c8;
+  --accent: #2f6f62;
+  --accent-ink: #f5f2ea;
+  --new: #b8741f;
+  --new-text: #8f5a14;
+  --term: #1b2225;
+  --term-ink: #dfe6e3;
+  --term-dim: #8fa09b;
+  --term-ok: #8fd3b9;
+  --chip: #ebe5d8;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14191b;
+    --card: #1b2225;
+    --ink: #e7e3da;
+    --muted: #a3aba7;
+    --line: #2e383b;
+    --accent: #6fbfac;
+    --accent-ink: #10201b;
+    --new: #e0a458;
+    --new-text: #e0a458;
+    --term: #0d1112;
+    --chip: #253033;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+}
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--new); outline-offset: 2px; border-radius: 4px; }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
+header.top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; gap: 16px; }
+.mark { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+.mark svg { width: 28px; height: 28px; }
+nav a { margin-left: 18px; color: var(--muted); text-decoration: none; font-size: 15px; }
+@media (max-width: 480px) { nav a { margin-left: 12px; font-size: 14px; } .mark { font-size: 15px; } }
+nav a:hover { color: var(--ink); }
+
+.hero { padding: 40px 0 28px; display: grid; gap: 28px; }
+.hero > * { min-width: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.08; letter-spacing: -0.03em; margin: 0; max-width: 16ch; }
+.lede { font-size: 1.2rem; color: var(--muted); max-width: 46ch; margin: 0; }
+.install { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cmd {
+  display: flex; align-items: center; gap: 10px; max-width: 100%;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 8px 8px 14px;
+}
+.cmd code { white-space: nowrap; overflow-x: auto; min-width: 0; flex: 1; }
+button.copy {
+  font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  border: 0; border-radius: 7px; padding: 8px 10px; cursor: pointer;
+  background: var(--accent); color: var(--accent-ink); flex: none;
+}
+button.copy.done { background: var(--new-text); color: var(--paper); }
+
+/* The demo: a bookmarks bar, and the command that fills it. */
+.demo { margin: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--card); box-shadow: 0 18px 40px -28px rgba(0,0,0,.45); }
+.chrome { display: flex; gap: 7px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.chrome i { width: 11px; height: 11px; border-radius: 50%; background: var(--line); display: block; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--chip); white-space: nowrap; }
+.chip svg { width: 13px; height: 13px; opacity: .7; }
+.chip.new { background: transparent; box-shadow: inset 0 0 0 2px var(--new); color: var(--ink); animation: land 900ms 1.6s both cubic-bezier(.2,.9,.3,1.3); }
+@keyframes land { from { opacity: 0; transform: translateY(-10px) scale(.92); } to { opacity: 1; transform: none; } }
+.term { background: var(--term); color: var(--term-ink); padding: 18px 20px; margin: 0; overflow-x: auto; font-size: 14px; line-height: 1.7; }
+.term .p { color: var(--term-dim); }
+.term .ok { color: var(--term-ok); }
+.term .dim { color: var(--term-dim); }
+
+section { padding: 44px 0; border-top: 1px solid var(--line); }
+h1, h2 { text-wrap: balance; }
+h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin: 0 0 8px; }
+.sub { color: var(--muted); margin: 0 0 26px; max-width: 60ch; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+.card h3 { margin: 0 0 6px; font-size: 1rem; }
+.card h3 code { font-size: .95em; color: var(--accent); }
+.card p { margin: 0; color: var(--muted); font-size: 15.5px; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--new-text); margin-bottom: 8px; }
+pre.block { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 10px 0 18px; }
+.steps { display: grid; gap: 30px; max-width: 780px; }
+.steps > *, .cards > *, ul.safe > li { min-width: 0; }
+.steps .cmd { margin: 8px 0; }
+.steps h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.steps p { margin: 0 0 6px; color: var(--muted); font-size: 15.5px; }
+ul.safe { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+ul.safe li { padding-left: 30px; position: relative; color: var(--muted); font-size: 15.5px; }
+ul.safe li strong { color: var(--ink); display: block; }
+ul.safe li::before { content: "\2713"; position: absolute; left: 0; top: 3px; width: 19px; height: 19px; border-radius: 6px; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+details summary { cursor: pointer; font-weight: 600; }
+details p { color: var(--muted); margin: 8px 0 0; font-size: 15.5px; }
+footer { border-top: 1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: 14px; }
+footer p { margin: 4px 0; }
+footer .made { margin-top: 14px; }
+@media (prefers-reduced-motion: reduce) { .chip.new { animation: none; } }
+@media (min-width: 860px) { .hero { grid-template-columns: 1fr 1.05fr; align-items: center; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="./" aria-label="ddg-bookmarks home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M10 7h12v18l-6-4.5L10 25z" fill="var(--paper)"/></svg>
+      ddg-bookmarks
+    </a>
+    <nav><a href="#install">Install</a><a href="#safe">Safety</a><a href="https://github.com/EvanMcDowell31/ddg-bookmarks">GitHub</a></nav>
+  </header>
+
+  <main>
+  <div class="hero">
+    <div>
+      <h1>Your DuckDuckGo bookmarks, from Claude Code.</h1>
+      <p class="lede" style="margin-top:18px">Read, add and remove bookmarks in DuckDuckGo for Mac while it runs. Every change is backed up first, and nothing restarts your browser.</p>
+      <div class="install" style="margin-top:24px">
+        <div class="cmd"><code tabindex="0">/plugin marketplace add EvanMcDowell31/ddg-bookmarks</code><button class="copy" type="button" data-copy="/plugin marketplace add EvanMcDowell31/ddg-bookmarks">Copy</button></div>
+      </div>
+    </div>
+    <figure class="demo" aria-label="A bookmarks bar gaining a new folder after a command">
+      <div class="chrome" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="bar">
+        <span class="chip"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5h5l1.5 1.5h6.5v8h-13z" fill="currentColor"/></svg>Work</span>
+        <span class="chip"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5h5l1.5 1.5h6.5v8h-13z" fill="currentColor"/></svg>Reading</span>
+        <span class="chip">Mail</span>
+        <span class="chip new"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5h5l1.5 1.5h6.5v8h-13z" fill="currentColor"/></svg>Projects</span>
+      </div>
+<pre class="term" tabindex="0"><span class="p">&gt;</span> /ddg-bookmarks:bookmark-projects
+<span class="dim">  Find   GitHub repos and sites</span>
+<span class="dim">  File   check links, merge</span>
+<span class="ok">  added 6 row(s) to Projects</span>
+<span class="dim">  skipped 2 forks, 1 already there</span>
+<span class="dim">  backup: Bookmarks.sqlite.bak-…</span></pre>
+    </figure>
+  </div>
+
+  <section>
+    <h2>Three ways to add to your bookmarks</h2>
+    <p class="sub">One small script does the writing. The plugin wraps it in a command, a workflow and a skill, so you can ask in your own words.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="tag">Command</span>
+        <h3><code>/ddg-bookmarks:add</code></h3>
+        <p>"Bookmark these into Work &gt; Docs." It checks each link loads, skips any you already have, and files the rest where you said.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Workflow</span>
+        <h3><code>/ddg-bookmarks:bookmark-projects</code></h3>
+        <p>Agents find your GitHub repositories from the last year, the sites they publish and, if you ask, the web apps running on your Mac. Then one checks each link and merges the new ones into a Projects folder. It only adds; it never moves or removes.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Tool</span>
+        <h3><code>ddg-bookmarks</code></h3>
+        <p><code>tree</code>, <code>find</code>, <code>add</code>, <code>remove</code>. JSON in and out, <code>--merge</code> to add only what's missing, and <code>--dry-run</code> to see a change before it's made.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <p class="sub">You need macOS, DuckDuckGo for Mac (the direct download or the App Store build) and Python 3, which macOS's command line tools include.</p>
+    <div class="steps">
+      <div>
+        <h3>Claude Code</h3>
+        <p>In a session, one after the other:</p>
+        <div class="cmd"><code tabindex="0">/plugin marketplace add EvanMcDowell31/ddg-bookmarks</code><button class="copy" type="button" data-copy="/plugin marketplace add EvanMcDowell31/ddg-bookmarks">Copy</button></div>
+        <div class="cmd"><code tabindex="0">/plugin install ddg-bookmarks@ddg-bookmarks</code><button class="copy" type="button" data-copy="/plugin install ddg-bookmarks@ddg-bookmarks">Copy</button></div>
+        <p>On macOS 14 and later, the first read asks you to let your terminal access data from other apps. A terminal with Full Disk Access isn't asked.</p>
+      </div>
+      <div>
+        <h3>Irie</h3>
+        <p>Clone the repository and copy <code>irie/ddg-bookmarks.toml</code> to <code>~/.config/irie/plugins/</code>, with its <code>path</code> set to your clone's <code>skills/bookmarks</code>. Turn it on in Settings › Plugins. Then type this in a task bar:</p>
+<div class="cmd"><code tabindex="0">:bookmark https://example.com into Reading</code><button class="copy" type="button" data-copy=":bookmark https://example.com into Reading">Copy</button></div>
+      </div>
+      <div>
+        <h3>By hand</h3>
+        <p>The script runs on its own, with no packages to install:</p>
+<pre class="block" tabindex="0"><code>python3 -I skills/bookmarks/scripts/ddg_bookmarks.py tree
+python3 -I skills/bookmarks/scripts/ddg_bookmarks.py \
+  add --title Docs --url https://example.com/docs \
+  --into Work --merge</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="safe">
+    <h2>How it stays safe</h2>
+    <p class="sub">DuckDuckGo keeps bookmarks in a Core Data SQLite store and reads it afresh each time. The script writes rows the way the app's own code does, so they're ready the next time it looks.</p>
+    <ul class="safe">
+      <li><strong>A backup first</strong>Every write saves a one-file copy beside the store before it changes anything.</li>
+      <li><strong>All or nothing</strong>Each change is one transaction that ends with an integrity check, so a failure leaves your bookmarks as they were.</li>
+      <li><strong>Written as the app writes</strong>New rows get a UUID, a version and a modified time, and their folder is marked changed, as the app's BookmarkEntity does. A removal marks rows for deletion, as the app's own does.</li>
+      <li><strong>Strict about what it opens</strong>Only an existing DuckDuckGo store, in WAL mode, with the tables it knows. A mistyped path never creates a database.</li>
+      <li><strong>Safe to repeat</strong>With <code>--merge</code>, a folder already there takes only what it lacks, and a link already there is skipped.</li>
+      <li><strong>Only web links</strong><code>javascript:</code>, <code>data:</code> and other links that run code are refused.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <details>
+      <summary>When do new bookmarks show up?</summary>
+      <p>DuckDuckGo reads its bookmarks again the next time you bookmark, edit or move something in it, or when it next starts. Until then they're saved but not yet shown. Nothing here restarts your browser.</p>
+    </details>
+    <details>
+      <summary>Is this made by DuckDuckGo?</summary>
+      <p>No. It's an independent open-source project, not made or endorsed by DuckDuckGo. It learned the shape of the store by reading DuckDuckGo's open-source browser code, which is public under the Apache License.</p>
+    </details>
+    <details>
+      <summary>Does it work with DuckDuckGo Sync?</summary>
+      <p>Adds and removals are written as the app writes its own, so they should sync like any other, but that hasn't been tested. The script prints a note when your store shows Sync has run.</p>
+    </details>
+    <details>
+      <summary>How do I undo a change?</summary>
+      <p>Remove what you added with <code>ddg-bookmarks remove "Folder &gt; Title"</code>. Every write also keeps a backup beside the store, but don't copy one back while DuckDuckGo runs.</p>
+    </details>
+    <details>
+      <summary>Windows, iPhone, other browsers?</summary>
+      <p>Not today. It works with DuckDuckGo for Mac's own store only.</p>
+    </details>
+  </section>
+
+  </main>
+
+  <footer>
+    <p><a href="https://github.com/EvanMcDowell31/ddg-bookmarks">Source on GitHub</a> · Apache-2.0 · <a href="https://github.com/EvanMcDowell31/ddg-bookmarks/blob/main/PROVENANCE.md">Sources it was built from</a></p>
+    <p>Not affiliated with DuckDuckGo. "DuckDuckGo" is named only to say which browser this works with.</p>
+    <p class="made">Made with <a href="https://irie-people.github.io/irie/">Irie</a></p>
+  </footer>
+</div>
+<script>
+document.querySelectorAll("button.copy").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var text = b.getAttribute("data-copy");
+    var done = function () { b.textContent = "Copied"; b.classList.add("done"); setTimeout(function () { b.textContent = "Copy"; b.classList.remove("done"); }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () {});
+    }
+  });
+});
+</script>
+</body>
+</html>
