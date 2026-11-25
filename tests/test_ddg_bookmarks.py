@@ -589,5 +589,22 @@ class Finding(unittest.TestCase):
         self.assertIn("expected a WAL store", p.stderr)
 
 
+class IrieManifest(unittest.TestCase):
+    """Irie gives sessions a manifest's skill only when the table's id is the
+    name the skill's SKILL.md gives itself, and the word must name that id."""
+
+    def test_names_agree(self):
+        import re
+        root = os.path.join(HERE, "..")
+        manifest = open(os.path.join(root, "irie", "ddg-bookmarks.toml")).read()
+        skills = re.findall(r"^\[skills\.([a-z0-9-]+)\]$", manifest, re.M)
+        self.assertEqual(len(skills), 1, skills)
+        path = re.search(r'^path = "~/[^"]*/(skills/[a-z0-9-]+)"$', manifest, re.M).group(1)
+        skill_md = open(os.path.join(root, path, "SKILL.md")).read()
+        name = re.search(r"^name: (\S+)$", skill_md, re.M).group(1)
+        self.assertEqual(skills[0], name)
+        self.assertEqual(re.search(r'^skill = "([^"]+)"$', manifest, re.M).group(1), name)
+
+
 if __name__ == "__main__":
     unittest.main()

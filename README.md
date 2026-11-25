@@ -28,7 +28,7 @@ Or from a shell: `claude plugin marketplace add EvanMcDowell31/ddg-bookmarks`, t
 
 It needs macOS, DuckDuckGo for Mac (the direct download or the Mac App Store build), and Python 3, which macOS's command line tools include. On macOS 14 and later, the first read asks you to let your terminal access data from other apps. A terminal with Full Disk Access isn't asked.
 
-**In [Irie](https://github.com/irie-people/irie):** clone this repository, copy [`irie/ddg-bookmarks.toml`](irie/ddg-bookmarks.toml) to `~/.config/irie/plugins/`, set its `path` to your clone's `skills/bookmarks`, and turn the plugin on in Settings › Plugins. Sessions then get `/irie:ddg-bookmarks`, and `:bookmark https://example.com into Reading` in a task bar starts one.
+**In [Irie](https://github.com/irie-people/irie):** clone this repository, copy [`irie/ddg-bookmarks.toml`](irie/ddg-bookmarks.toml) to `~/.config/irie/plugins/`, set its `path` to your clone's `skills/bookmarks`, and turn the plugin on in Settings › Plugins. Sessions then get `/irie:bookmarks`, and `:bookmark https://example.com into Reading` in a task bar starts one.
 
 ## Examples
 
